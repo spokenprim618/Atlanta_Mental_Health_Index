@@ -45,8 +45,8 @@ OUTPUT:
 
 import pandas as pd
 
-RAW_DATA_PATH = "data/metro_atlanta_mental_health_index_raw.csv"
-OUTPUT_PATH = "outputs/mental_health_index_final.csv"
+RAW_DATA_PATH = "../data/metro_atlanta_mental_health_index_raw.csv"
+OUTPUT_PATH = "../outputs/mental_health_index_final.csv"
 
 # Indicators used in the index, and the direction of "worse"
 NEED_COLUMNS = [

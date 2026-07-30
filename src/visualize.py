@@ -28,8 +28,8 @@ import pandas as pd
 import plotly.express as px
 from matplotlib.patches import Polygon
 
-MHI_PATH = "outputs/mental_health_index_final.csv"
-GEOJSON_PATH = "data/ga_metro_counties_geojson.json"
+MHI_PATH = "../outputs/mental_health_index_final.csv"
+GEOJSON_PATH = "../data/ga_metro_counties_geojson.json"
 
 FIPS_BY_COUNTY = {
     "Fulton": "13121",
@@ -45,7 +45,9 @@ FIPS_BY_COUNTY = {
 }
 
 
-def plot_ranked_bar_chart(df: pd.DataFrame, out_path: str = "outputs/mental_health_index_chart.png"):
+def plot_ranked_bar_chart(
+    df: pd.DataFrame, out_path: str = "../outputs/mental_health_index_chart.png"
+):
     """Horizontal bar chart of MHI scores, ranked low to high."""
     plot_df = df.sort_values("MHI_Score_0to100", ascending=True)
 
@@ -56,9 +58,17 @@ def plot_ranked_bar_chart(df: pd.DataFrame, out_path: str = "outputs/mental_heal
     ]
     bars = ax.barh(plot_df["County"], plot_df["MHI_Score_0to100"], color=colors)
     ax.set_xlabel("Mental Health Index Score (0-100, higher = greater need)")
-    ax.set_title("Metro Atlanta Mental Health Index by County", fontsize=13, fontweight="bold")
+    ax.set_title(
+        "Metro Atlanta Mental Health Index by County", fontsize=13, fontweight="bold"
+    )
     for bar, val in zip(bars, plot_df["MHI_Score_0to100"]):
-        ax.text(val + 1, bar.get_y() + bar.get_height() / 2, f"{val}", va="center", fontsize=9)
+        ax.text(
+            val + 1,
+            bar.get_y() + bar.get_height() / 2,
+            f"{val}",
+            va="center",
+            fontsize=9,
+        )
     ax.set_xlim(0, 105)
     plt.tight_layout()
     plt.savefig(out_path, dpi=150)
@@ -66,7 +76,9 @@ def plot_ranked_bar_chart(df: pd.DataFrame, out_path: str = "outputs/mental_heal
     print(f"Wrote {out_path}")
 
 
-def plot_need_vs_capacity_scatter(df: pd.DataFrame, out_path: str = "outputs/need_vs_capacity_scatter.png"):
+def plot_need_vs_capacity_scatter(
+    df: pd.DataFrame, out_path: str = "../outputs/need_vs_capacity_scatter.png"
+):
     """
     Bubble scatter: x = socioeconomic need composite (poverty/uninsured/
     unemployment average), y = provider density, bubble size = frequent
@@ -78,7 +90,11 @@ def plot_need_vs_capacity_scatter(df: pd.DataFrame, out_path: str = "outputs/nee
     ].mean(axis=1)
 
     fig, ax = plt.subplots(figsize=(9, 7))
-    sizes = (df["Frequent_Mental_Distress_Pct"] - df["Frequent_Mental_Distress_Pct"].min() + 2) ** 2.6
+    sizes = (
+        df["Frequent_Mental_Distress_Pct"]
+        - df["Frequent_Mental_Distress_Pct"].min()
+        + 2
+    ) ** 2.6
 
     scatter = ax.scatter(
         df["Need_Composite"],
@@ -107,22 +123,38 @@ def plot_need_vs_capacity_scatter(df: pd.DataFrame, out_path: str = "outputs/nee
     ax.axhline(ymed, color="gray", linestyle="--", linewidth=0.8)
 
     ax.text(
-        0.98, 0.02, "HIGH NEED\nLOW CAPACITY\n(priority)",
-        transform=ax.transAxes, ha="right", va="bottom",
-        fontsize=9, color="#c0392b", fontweight="bold",
+        0.98,
+        0.02,
+        "HIGH NEED\nLOW CAPACITY\n(priority)",
+        transform=ax.transAxes,
+        ha="right",
+        va="bottom",
+        fontsize=9,
+        color="#c0392b",
+        fontweight="bold",
     )
     ax.text(
-        0.02, 0.98, "LOW NEED\nHIGH CAPACITY\n(well-positioned)",
-        transform=ax.transAxes, ha="left", va="top",
-        fontsize=9, color="#27ae60", fontweight="bold",
+        0.02,
+        0.98,
+        "LOW NEED\nHIGH CAPACITY\n(well-positioned)",
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=9,
+        color="#27ae60",
+        fontweight="bold",
     )
 
-    ax.set_xlabel("Socioeconomic Need Composite (avg. of poverty, uninsured, unemployment %)", fontsize=10)
+    ax.set_xlabel(
+        "Socioeconomic Need Composite (avg. of poverty, uninsured, unemployment %)",
+        fontsize=10,
+    )
     ax.set_ylabel("Mental Health Providers per 100,000 residents", fontsize=10)
     ax.set_title(
         "Need vs. Capacity — Metro Atlanta Counties\n"
         "(bubble size = Frequent Mental Distress %, color = MHI Score)",
-        fontsize=12, fontweight="bold",
+        fontsize=12,
+        fontweight="bold",
     )
 
     cbar = fig.colorbar(scatter, ax=ax)
@@ -134,7 +166,9 @@ def plot_need_vs_capacity_scatter(df: pd.DataFrame, out_path: str = "outputs/nee
     print(f"Wrote {out_path}")
 
 
-def plot_choropleth_static(df: pd.DataFrame, geojson: dict, out_path: str = "outputs/mhi_choropleth_map.png"):
+def plot_choropleth_static(
+    df: pd.DataFrame, geojson: dict, out_path: str = "../outputs/mhi_choropleth_map.png"
+):
     """
     Static county choropleth built by drawing raw GeoJSON polygons with
     matplotlib. (We draw polygons manually rather than using a GIS library
@@ -146,7 +180,9 @@ def plot_choropleth_static(df: pd.DataFrame, geojson: dict, out_path: str = "out
 
     fig, ax = plt.subplots(figsize=(9, 8))
     cmap = matplotlib.colormaps["OrRd"]
-    norm = mcolors.Normalize(vmin=df["MHI_Score_0to100"].min(), vmax=df["MHI_Score_0to100"].max())
+    norm = mcolors.Normalize(
+        vmin=df["MHI_Score_0to100"].min(), vmax=df["MHI_Score_0to100"].max()
+    )
 
     all_lons, all_lats = [], []
     centroids = {}
@@ -158,9 +194,15 @@ def plot_choropleth_static(df: pd.DataFrame, geojson: dict, out_path: str = "out
         color = cmap(norm(score))
         geom = feat["geometry"]
 
-        rings = [geom["coordinates"][0]] if geom["type"] == "Polygon" else [poly[0] for poly in geom["coordinates"]]
+        rings = (
+            [geom["coordinates"][0]]
+            if geom["type"] == "Polygon"
+            else [poly[0] for poly in geom["coordinates"]]
+        )
         for ring in rings:
-            poly_patch = Polygon(ring, closed=True, facecolor=color, edgecolor="#333333", linewidth=1.2)
+            poly_patch = Polygon(
+                ring, closed=True, facecolor=color, edgecolor="#333333", linewidth=1.2
+            )
             ax.add_patch(poly_patch)
             xs = [c[0] for c in ring]
             ys = [c[1] for c in ring]
@@ -175,15 +217,24 @@ def plot_choropleth_static(df: pd.DataFrame, geojson: dict, out_path: str = "out
     for name, (lon, lat) in centroids.items():
         score = score_by_fips[FIPS_BY_COUNTY[name]]
         ax.annotate(
-            f"{name}\n{score}", (lon, lat), ha="center", va="center",
-            fontsize=9, fontweight="bold", color="black",
+            f"{name}\n{score}",
+            (lon, lat),
+            ha="center",
+            va="center",
+            fontsize=9,
+            fontweight="bold",
+            color="black",
         )
 
     ax.set_xlim(min(all_lons) - 0.05, max(all_lons) + 0.05)
     ax.set_ylim(min(all_lats) - 0.05, max(all_lats) + 0.05)
     ax.set_aspect("equal")
     ax.axis("off")
-    ax.set_title("Metro Atlanta Mental Health Index (MHI) by County", fontsize=14, fontweight="bold")
+    ax.set_title(
+        "Metro Atlanta Mental Health Index (MHI) by County",
+        fontsize=14,
+        fontweight="bold",
+    )
 
     sm = cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
@@ -196,7 +247,9 @@ def plot_choropleth_static(df: pd.DataFrame, geojson: dict, out_path: str = "out
     print(f"Wrote {out_path}")
 
 
-def plot_choropleth_interactive(df: pd.DataFrame, geojson: dict, out_path: str = "outputs/mhi_choropleth_map.html"):
+def plot_choropleth_interactive(
+    df: pd.DataFrame, geojson: dict, out_path: str = "../outputs/mhi_choropleth_map.html"
+):
     """Interactive hover-enabled choropleth, saved as a standalone HTML file."""
     plot_df = df.copy()
     plot_df["fips"] = plot_df["County"].map(FIPS_BY_COUNTY)
